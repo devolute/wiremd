@@ -60,3 +60,4 @@ docs/.vitepress/cache/
 
 # Generated skill zip (built on release, not checked in)
 wireframe-skill.zip
+*.tgz

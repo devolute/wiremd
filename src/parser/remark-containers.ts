@@ -98,8 +98,11 @@ function collectContainer(
   ) {
     const fullText = openerNode.children[0].value as string;
     const lines = fullText.split('\n');
+    // First closer after the opener — not the last. Nested openers often share a
+    // paragraph with an outer closer ("::: badge\n…\n:::\nText\n:::"); taking the
+    // last ::: would swallow the outer fence into the inner container's body.
     let closingIdx = -1;
-    for (let j = lines.length - 1; j >= 1; j--) {
+    for (let j = 1; j < lines.length; j++) {
       if (lines[j].trim() === ':::') {
         closingIdx = j;
         break;
@@ -107,6 +110,7 @@ function collectContainer(
     }
     if (closingIdx > 0) {
       const contentText = lines.slice(1, closingIdx).join('\n').trim();
+      const afterCloser = lines.slice(closingIdx + 1).join('\n');
       const children: any[] = [];
       if (opener.inline) {
         children.push({
@@ -118,6 +122,14 @@ function collectContainer(
         children.push({
           type: 'paragraph',
           children: [{ type: 'text', value: contentText }],
+        });
+      }
+      // Remainder after the closer (often the outer container's trailing content +
+      // its :::) must stay available for the parent collector.
+      if (afterCloser.trim()) {
+        nodes.splice(startIdx + 1, 0, {
+          type: 'paragraph',
+          children: [{ type: 'text', value: afterCloser }],
         });
       }
       return finishContainer(opener.containerType, opener.attrs, opener.inline, children, startIdx + 1);

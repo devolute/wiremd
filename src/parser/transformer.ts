@@ -581,6 +581,71 @@ function tryParseButtonLinkSequence(children: any[]): WiremdNode[] | null {
     });
 }
 
+/**
+ * Detect markdown links trailed by primary markers that would otherwise leak as
+ * literal text: `[Label](url)*` or `[Label](url){.primary}`.
+ * Same result as the canonical `[[Label](url)]*` form.
+ */
+function tryParseMarkdownLinkButtons(children: any[]): WiremdNode[] | null {
+  if (!children?.length) return null;
+
+  const buttons: WiremdNode[] = [];
+  let i = 0;
+  let sawModifier = false;
+
+  while (i < children.length) {
+    const child = children[i];
+
+    if (child.type === 'text' && /^\s*$/.test(child.value || '')) {
+      i++;
+      continue;
+    }
+
+    if (child.type !== 'link') return null;
+
+    let isPrimary = false;
+    let attrs: Record<string, unknown> = {};
+    const next = children[i + 1];
+
+    if (next?.type === 'text') {
+      const mod = (next.value as string).match(/^\s*(\*|(\{[^}]*\}))\s*$/);
+      if (!mod) return null;
+      const marker = mod[1];
+      if (marker === '*') {
+        isPrimary = true;
+      } else {
+        attrs = parseAttributes(marker);
+        if (
+          (attrs as any).variant === 'primary' ||
+          ((attrs as any).classes || []).includes('primary')
+        ) {
+          isPrimary = true;
+        }
+      }
+      sawModifier = true;
+      i += 2;
+    } else {
+      // Trailing unmodified link only allowed after we've already seen a modifier
+      // on an earlier sibling (e.g. primary + secondary CTA pair).
+      if (!sawModifier) return null;
+      i += 1;
+    }
+
+    buttons.push({
+      type: 'button',
+      content: extractTextContent(child),
+      href: child.url || '#',
+      props: {
+        ...attrs,
+        variant: isPrimary ? 'primary' : (attrs as any).variant,
+      },
+    });
+  }
+
+  if (!buttons.length || !sawModifier) return null;
+  return buttons;
+}
+
 function serializeMdastChildren(children: any[]): string {
   return (children || []).map((child: any) => {
     if (child.type === 'link') {
@@ -622,6 +687,18 @@ function transformParagraph(node: any, _options: ParseOptions, nextNode?: any): 
       type: 'container',
       containerType: 'button-group',
       children: buttonLinks as any,
+      props: {},
+    };
+  }
+
+  // [Button](url)* / [Button](url){.primary} — same result without the outer [[…]]
+  const mdLinkButtons = tryParseMarkdownLinkButtons(node.children);
+  if (mdLinkButtons !== null) {
+    if (mdLinkButtons.length === 1) return mdLinkButtons[0];
+    return {
+      type: 'container',
+      containerType: 'button-group',
+      children: mdLinkButtons as any,
       props: {},
     };
   }
