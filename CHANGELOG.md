@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Fixed
+- Nested containers that share a paragraph with an outer closer no longer swallow the outer `:::` (tight `::: badge` inside `::: card` without blank lines)
+- `[Label](url)*` and `[Label](url){.primary}` now parse as linked primary buttons (same as `[[Label](url)]*`) instead of leaking `*` / `{.primary}` as literal text
 
 ## [0.1.4] - 2025-11-24
 

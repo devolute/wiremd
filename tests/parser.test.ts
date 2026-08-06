@@ -400,6 +400,30 @@ Are you sure?
       expect(result.children[0].children).toHaveLength(3);
     });
 
+    it('should nest a badge inside a card without blank lines between fences', () => {
+      const input = `::: card {.buerger}
+### Titel
+::: badge {.buerger}
+Bürger:in
+:::
+Text hier.
+:::`;
+      const result = parse(input);
+      const card = result.children[0];
+      expect(card).toMatchObject({ type: 'container', containerType: 'card' });
+      const badge = (card as any).children.find(
+        (c: any) => c.type === 'container' && c.containerType === 'badge',
+      );
+      expect(badge).toBeDefined();
+      const badgeText = JSON.stringify(badge);
+      expect(badgeText).toContain('Bürger:in');
+      expect(badgeText).not.toContain('Text hier');
+      const body = (card as any).children.find(
+        (c: any) => c.type === 'paragraph' && JSON.stringify(c).includes('Text hier'),
+      );
+      expect(body).toBeDefined();
+    });
+
     it('should nest a container inside another container', () => {
       const input = `
 ::: modal
@@ -1048,6 +1072,26 @@ Nav
       expect(result.children[0]).toMatchObject({
         type: 'button',
         href: './start.md',
+        props: { variant: 'primary' },
+      });
+    });
+
+    it('should parse [text](url)* as primary button with href (no literal asterisk)', () => {
+      const result = parse('[Geschichten ansehen](./stories.md)*');
+      expect(result.children[0]).toMatchObject({
+        type: 'button',
+        content: 'Geschichten ansehen',
+        href: './stories.md',
+        props: { variant: 'primary' },
+      });
+    });
+
+    it('should parse [text](url){.primary} as primary button with href', () => {
+      const result = parse('[Geschichten ansehen](./stories.md){.primary}');
+      expect(result.children[0]).toMatchObject({
+        type: 'button',
+        content: 'Geschichten ansehen',
+        href: './stories.md',
         props: { variant: 'primary' },
       });
     });
