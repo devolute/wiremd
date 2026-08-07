@@ -8,6 +8,7 @@
  */
 
 import type { WiremdNode } from '../types.js';
+import { resolveIcon } from './icon-map.js';
 
 export interface ReactRenderContext {
   classPrefix: string;
@@ -281,14 +282,7 @@ function renderIcon(node: any, context: ReactRenderContext, indent: number): str
   const classAttr = context.useClassName ? 'className' : 'class';
 
   // Icon mapping
-  const iconMap: Record<string, string> = {
-    'home': '🏠', 'user': '👤', 'settings': '⚙️', 'search': '🔍',
-    'star': '⭐', 'heart': '❤️', 'mail': '✉️', 'phone': '📞',
-    'check': '✓', 'close': '✕', 'menu': '☰', 'more': '⋯',
-    'default': '●'
-  };
-
-  const iconContent = iconMap[iconName] || iconMap['default'];
+  const iconContent = resolveIcon(iconName);
 
   return `${indentStr}<span ${classAttr}="${classes}" data-icon="${iconName}" aria-label="${iconName}">${iconContent}</span>`;
 }

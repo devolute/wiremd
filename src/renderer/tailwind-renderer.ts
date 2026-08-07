@@ -8,6 +8,7 @@
  */
 
 import type { WiremdNode } from '../types.js';
+import { resolveIcon } from './icon-map.js';
 
 export interface TailwindRenderContext {
   pretty: boolean;
@@ -266,14 +267,7 @@ function renderIcon(node: any, _context: TailwindRenderContext): string {
   const classes = 'inline-block align-middle';
   const iconName = node.props.name || 'default';
 
-  const iconMap: Record<string, string> = {
-    'home': '🏠', 'user': '👤', 'settings': '⚙️', 'search': '🔍',
-    'star': '⭐', 'heart': '❤️', 'mail': '✉️', 'phone': '📞',
-    'check': '✓', 'close': '✕', 'menu': '☰', 'more': '⋯',
-    'default': '●'
-  };
-
-  const iconContent = iconMap[iconName] || iconMap['default'];
+  const iconContent = resolveIcon(iconName);
 
   return `<span class="${classes}" data-icon="${iconName}" aria-label="${iconName}">${iconContent}</span>`;
 }

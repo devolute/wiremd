@@ -62,6 +62,22 @@ describe('HTML Renderer', () => {
 
       expect(html).toContain('wmd-icon');
       expect(html).toContain('data-icon="house"');
+      expect(html).toContain('🏠');
+    });
+
+    it('should resolve icon aliases and domain names', () => {
+      const cases: Array<[string, string]> = [
+        [':gear:', '⚙️'],
+        [':trash:', '🗑️'],
+        [':person:', '👤'],
+        [':tree:', '🌳'],
+        [':map:', '🗺️'],
+        [':heat:', '🌡️'],
+      ];
+      for (const [src, emoji] of cases) {
+        const html = renderToHTML(parse(src), { style: 'sketch' });
+        expect(html).toContain(emoji);
+      }
     });
   });
 
