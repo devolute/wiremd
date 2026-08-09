@@ -437,11 +437,16 @@ function transformInlineContainer(node: any, _options: ParseOptions): WiremdNode
       continue;
     }
 
-    // Check if it starts with icon: :icon: Text
-    const iconTextMatch = trimmed.match(/^:([a-z-]+):\s*(.+)$/);
+    // Check if it starts with icon: :icon: Text  (trailing * marks active)
+    const iconTextMatch = trimmed.match(/^:([a-z-]+):\s*(.+?)(\*)?$/);
     if (iconTextMatch) {
       const iconName = iconTextMatch[1];
-      const text = iconTextMatch[2];
+      let text = iconTextMatch[2].trim();
+      const isActive = Boolean(iconTextMatch[3]) || /^\*\*?(.+?)\*\*?$/.test(text);
+      if (isActive) {
+        const inner = text.match(/^\*\*?(.+?)\*\*?$/);
+        if (inner) text = inner[1];
+      }
 
       // Create a brand node for :logo:, otherwise nav-item
       const nodeType = iconName === 'logo' ? 'brand' : 'nav-item';
@@ -452,7 +457,7 @@ function transformInlineContainer(node: any, _options: ParseOptions): WiremdNode
           { type: 'icon', props: { name: iconName } },
           { type: 'text', content: text },
         ],
-        props: {},
+        props: isActive && nodeType === 'nav-item' ? { classes: ['active'] } : {},
       });
       continue;
     }

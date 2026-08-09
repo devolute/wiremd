@@ -139,7 +139,7 @@ export function validate(ast: DocumentNode): ValidationError[] {
             code: 'MISSING_CONTAINER_TYPE',
           });
         } else {
-          const validContainerTypes = ['hero', 'card', 'modal', 'sidebar', 'footer', 'alert', 'grid', 'layout', 'section', 'form-group', 'button-group'];
+          const validContainerTypes = ['hero', 'card', 'modal', 'sidebar', 'footer', 'alert', 'grid', 'layout', 'section', 'form-group', 'button-group', 'bottom-nav'];
           if (!validContainerTypes.includes(node.containerType)) {
             errors.push({
               message: `Invalid containerType: "${node.containerType}". Must be one of: ${validContainerTypes.join(', ')}`,
