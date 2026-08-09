@@ -228,14 +228,14 @@ Email
   });
 
   describe('Icons', () => {
-    it('should render icons', () => {
+    it('should render icon markers without color emoji', () => {
       const ast = parse('[[ :home: Home | :user: Profile ]]');
       const jsx = renderToReact(ast);
 
       expect(jsx).toContain('data-icon="home"');
       expect(jsx).toContain('data-icon="user"');
-      expect(jsx).toContain('🏠');
-      expect(jsx).toContain('👤');
+      expect(jsx).not.toContain('🏠');
+      expect(jsx).not.toContain('👤');
     });
   });
 

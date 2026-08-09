@@ -1,5 +1,8 @@
 /**
- * Shared emoji/unicode map for `:name:` icon shortcodes.
+ * Shared monochrome icon-glyph map for `:name:` icon shortcodes.
+ *
+ * No color emoji: icons render either as plain (non-color-presentation)
+ * Unicode symbols, or as an empty glyph so only the label text shows.
  * Aliases keep docs/skills names working (gear/trash/x) and add
  * domain-friendly names (tree, house, person, map, …).
  */
@@ -14,32 +17,32 @@ export const ICON_MAP: Record<string, string> = {
   youtube: '▶',
 
   // Common UI icons
-  home: '🏠',
-  user: '👤',
-  settings: '⚙️',
-  search: '🔍',
-  star: '⭐',
-  heart: '❤️',
-  mail: '✉️',
-  phone: '📞',
-  calendar: '📅',
-  clock: '🕐',
-  location: '📍',
-  link: '🔗',
-  download: '⬇️',
-  upload: '⬆️',
-  edit: '✏️',
-  delete: '🗑️',
-  plus: '➕',
-  minus: '➖',
+  home: '',
+  user: '',
+  settings: '⚙',
+  search: '',
+  star: '☆',
+  heart: '♥',
+  mail: '✉',
+  phone: '',
+  calendar: '',
+  clock: '',
+  location: '',
+  link: '',
+  download: '⬇',
+  upload: '⬆',
+  edit: '✏',
+  delete: '',
+  plus: '+',
+  minus: '−',
   check: '✓',
   close: '✕',
   menu: '☰',
   more: '⋯',
-  info: 'ℹ️',
-  warning: '⚠️',
-  error: '❌',
-  success: '✅',
+  info: 'ℹ',
+  warning: '⚠',
+  error: '✕',
+  success: '✓',
 
   // Arrows
   'arrow-up': '↑',
@@ -48,82 +51,82 @@ export const ICON_MAP: Record<string, string> = {
   'arrow-right': '→',
 
   // Business/Finance
-  chart: '📊',
+  chart: '',
   dollar: '$',
   euro: '€',
   pound: '£',
 
   // Tech
   code: '</>',
-  database: '🗄️',
-  cloud: '☁️',
-  wifi: '📶',
+  database: '',
+  cloud: '☁',
+  wifi: '',
 
   // Communication
-  chat: '💬',
-  video: '🎥',
-  microphone: '🎤',
-  bell: '🔔',
+  chat: '',
+  video: '',
+  microphone: '',
+  bell: '',
 
   // Files
-  file: '📄',
-  folder: '📁',
-  image: '🖼️',
-  document: '📃',
-  pdf: '📑',
+  file: '',
+  folder: '',
+  image: '',
+  document: '',
+  pdf: '',
 
   // Brand placeholders
   logo: '◈',
   brand: '◆',
 
   // Activities
-  rocket: '🚀',
-  bulb: '💡',
-  shield: '🛡️',
-  lock: '🔒',
-  unlock: '🔓',
-  key: '🔑',
-  gift: '🎁',
-  trophy: '🏆',
-  flag: '🚩',
-  bookmark: '🔖',
-  tag: '🏷️',
-  cart: '🛒',
-  'credit-card': '💳',
+  rocket: '',
+  bulb: '',
+  shield: '',
+  lock: '',
+  unlock: '',
+  key: '',
+  gift: '',
+  trophy: '',
+  flag: '⚑',
+  bookmark: '',
+  tag: '',
+  cart: '',
+  'credit-card': '',
 
   // Domain / climate-adaptation friendly
-  tree: '🌳',
-  plant: '🌱',
-  leaf: '🍃',
-  sun: '☀️',
-  thermometer: '🌡️',
-  drop: '💧',
-  rain: '🌧️',
-  wind: '💨',
-  map: '🗺️',
-  building: '🏢',
-  shop: '🏪',
-  tools: '🛠️',
-  clipboard: '📋',
-  megaphone: '📢',
-  handshake: '🤝',
-  pin: '📌',
+  tree: '',
+  plant: '',
+  leaf: '',
+  sun: '☀',
+  thermometer: '',
+  drop: '',
+  rain: '',
+  wind: '',
+  map: '',
+  building: '',
+  shop: '',
+  tools: '',
+  clipboard: '',
+  megaphone: '',
+  handshake: '',
+  pin: '',
 
   // Aliases (skills docs + natural synonyms)
-  house: '🏠',
-  person: '👤',
-  people: '👥',
-  users: '👥',
-  gear: '⚙️',
-  cog: '⚙️',
-  trash: '🗑️',
+  house: '',
+  person: '',
+  people: '',
+  users: '',
+  gear: '⚙',
+  cog: '⚙',
+  trash: '',
   x: '✕',
   cross: '✕',
-  'pin-drop': '📍',
-  marker: '📍',
-  thermo: '🌡️',
-  heat: '🌡️',
-  water: '💧',
+  'pin-drop': '',
+  marker: '',
+  thermo: '',
+  heat: '',
+  water: '',
 
   // Default
   default: '●',
@@ -131,5 +134,5 @@ export const ICON_MAP: Record<string, string> = {
 
 export function resolveIcon(name: string | undefined | null): string {
   const key = (name || 'default').toLowerCase();
-  return ICON_MAP[key] || ICON_MAP.default;
+  return ICON_MAP[key] ?? ICON_MAP.default;
 }

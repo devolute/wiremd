@@ -281,14 +281,14 @@ Email
   });
 
   describe('Icons', () => {
-    it('should render icons', () => {
+    it('should render icon markers without color emoji', () => {
       const ast = parse('[[ :home: Home | :user: Profile ]]');
       const html = renderToTailwind(ast);
 
       expect(html).toContain('data-icon="home"');
       expect(html).toContain('data-icon="user"');
-      expect(html).toContain('🏠');
-      expect(html).toContain('👤');
+      expect(html).not.toContain('🏠');
+      expect(html).not.toContain('👤');
     });
   });
 
