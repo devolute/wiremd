@@ -37,6 +37,95 @@ export function getStyleCSS(style: string, prefix: string): string {
 .${prefix}container-button-group > .${prefix}select,
 .${prefix}row > .${prefix}grid-item > .${prefix}input,
 .${prefix}row > .${prefix}grid-item > .${prefix}select { display: inline-block; width: auto; }
+.${prefix}row.${prefix}toggle-group { gap: 0; flex-wrap: nowrap; }
+.${prefix}row.${prefix}toggle-group > .${prefix}grid-item { flex: 1 1 0; }
+.${prefix}row.${prefix}toggle-group .${prefix}container-button-group { display: flex; width: 100%; gap: 0; }
+.${prefix}row.${prefix}toggle-group .${prefix}button {
+  flex: 1 1 0;
+  border-radius: 0;
+  margin: 0;
+  justify-content: center;
+}
+.${prefix}row.${prefix}toggle-group .${prefix}button:first-child { border-radius: 9999px 0 0 9999px; }
+.${prefix}row.${prefix}toggle-group .${prefix}button:last-child { border-radius: 0 9999px 9999px 0; }
+.${prefix}row.${prefix}toggle-group .${prefix}grid-item:first-child .${prefix}button:first-child { border-radius: 9999px 0 0 9999px; }
+.${prefix}row.${prefix}toggle-group .${prefix}grid-item:last-child .${prefix}button:last-child { border-radius: 0 9999px 9999px 0; }
+`;
+
+  // Bottom nav + chips — shared structure; themes can override colours
+  const bottomNavAndChipStructural = `
+.${prefix}container-bottom-nav {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  margin: 1.5rem -1.5rem -1.5rem;
+  padding: 0.35rem 0.5rem calc(0.35rem + env(safe-area-inset-bottom, 0));
+  border-top: 1px solid #e0e0e0;
+  background: #fff;
+  z-index: 20;
+}
+.${prefix}bottom-nav-content {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 0.25rem;
+}
+.${prefix}container-bottom-nav .${prefix}nav-item,
+.${prefix}container-bottom-nav .${prefix}button {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-height: 3.25rem;
+  padding: 0.35rem 0.25rem;
+  border: none;
+  background: transparent;
+  border-radius: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #666;
+  text-decoration: none;
+}
+.${prefix}container-bottom-nav .${prefix}nav-item.${prefix}active,
+.${prefix}container-bottom-nav .${prefix}button.${prefix}active,
+.${prefix}container-bottom-nav .${prefix}button-primary {
+  color: #111;
+  font-weight: 700;
+  background: #f3f3f3;
+}
+.${prefix}container-bottom-nav .${prefix}icon { font-size: 1.25rem; line-height: 1; }
+.${prefix}badge.${prefix}chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-width: 1px;
+}
+.${prefix}badge.${prefix}chip-removable { padding-right: 0.35rem; }
+.${prefix}chip-dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-left: 0.15rem;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.${prefix}chip-dismiss:hover { opacity: 1; background: rgba(0,0,0,0.08); }
 `;
 
   const demoStructural = `
@@ -61,7 +150,7 @@ export function getStyleCSS(style: string, prefix: string): string {
     case 'brutal':    themeCSS = getBrutalStyle(prefix); break;
     default:          themeCSS = getSketchStyle(prefix);
   }
-  return linkButtonReset + tabsStructural + rowStructural + demoStructural + themeCSS;
+  return linkButtonReset + tabsStructural + rowStructural + bottomNavAndChipStructural + demoStructural + themeCSS;
 }
 
 /**

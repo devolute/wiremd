@@ -120,7 +120,7 @@ Same as `[Select___v]` + list — the `v` suffix and following list already expr
 
 Segmented control. Used for view-mode switches (list/grid), alignment, and filters.
 
-A `::: row` with a class modifier — row already creates a flex button container, `.toggle-group` styles it as a segmented control:
+**Implemented.** A `::: row` with a class modifier — row already creates a flex button container, `.toggle-group` styles it as a segmented control:
 
 ```
 ::: row {.toggle-group}
@@ -280,14 +280,11 @@ New container using `###` items — same boundary convention as `::: grid-N`:
 
 Mobile tab bar fixed to the bottom. Used in mobile-first apps.
 
-New container type — button links with icons follow the existing `[[:icon: Label]]` pattern:
+**Implemented.** Nest a nav row inside `::: bottom-nav`. Trailing `*` on an item marks it active:
 
 ```
 ::: bottom-nav
-[[:home: Home]*]
-[[:search: Explore]]
-[[:bell: Alerts]]
-[[:user: Profile]]
+[[ :home: Feed* | :search: Explore | :bell: Alerts | :user: Profile ]]
 :::
 ```
 
@@ -332,7 +329,7 @@ Extends image syntax — `![alt](src)` already works; avatar is an image with a 
 
 Compact, optionally removable label. Distinct from badge — chips are interactive and can be dismissed. Used for tags, filters, selections.
 
-Extends badge `|...|` syntax — static chip is a badge with `.chip` class; removable adds `×`:
+**Implemented.** Extends badge `|...|` syntax — static chip is a badge with `.chip` class; removable adds `×`:
 
 ```
 |React|{.chip}      <!-- static chip -->

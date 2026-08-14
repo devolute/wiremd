@@ -56,12 +56,36 @@ describe('HTML Renderer', () => {
       expect(html).toContain('Selected option');
     });
 
-    it('should render an icon', () => {
-      const ast = parse(':house:');
+    it('should render an icon without color emoji', () => {
+      const ast = parse(':check:');
       const html = renderToHTML(ast, { style: 'sketch' });
 
       expect(html).toContain('wmd-icon');
-      expect(html).toContain('data-icon="house"');
+      expect(html).toContain('data-icon="check"');
+      expect(html).toContain('✓');
+    });
+
+    it('should resolve icon aliases to plain, non-color glyphs', () => {
+      const cases: Array<[string, string]> = [
+        [':gear:', '⚙'],
+        [':x:', '✕'],
+        [':heart:', '♥'],
+        [':star:', '☆'],
+      ];
+      for (const [src, glyph] of cases) {
+        const html = renderToHTML(parse(src), { style: 'sketch' });
+        expect(html).toContain(glyph);
+      }
+    });
+
+    it('should render decorative-only icons (house/person/tree/map) with no glyph', () => {
+      const formerEmoji = ['🏠', '👤', '🗑️', '🌳', '🗺️', '🌡️'];
+      for (const [i, name] of ['house', 'trash', 'person', 'tree', 'map', 'heat'].entries()) {
+        const html = renderToHTML(parse(`:${name}:`), { style: 'sketch' });
+        expect(html).toContain(`data-icon="${name}"`);
+        expect(html).not.toContain(formerEmoji[i]);
+        expect(html).toContain(`aria-label="${name}"></span>`);
+      }
     });
   });
 

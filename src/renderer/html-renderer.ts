@@ -8,6 +8,7 @@
  */
 
 import type { WiremdNode } from '../types.js';
+import { resolveIcon } from './icon-map.js';
 
 export interface RenderContext {
   style: string;
@@ -152,7 +153,15 @@ function renderButton(node: any, context: RenderContext): string {
 function renderBadge(node: any, context: RenderContext): string {
   const { classPrefix: prefix } = context;
   const classes = buildClasses(prefix, 'badge', node.props);
-  return `<span class="${classes}">${escapeHtml(node.content)}</span>`;
+  const raw = String(node.content ?? '');
+  const isChip = (node.props?.classes || []).includes('chip');
+  // Removable chip: "|Label ×|{.chip}" — keep the × as a dismiss affordance.
+  const removable = isChip && /[×x]\s*$/u.test(raw);
+  if (removable) {
+    const label = raw.replace(/\s*[×x]\s*$/u, '').trim();
+    return `<span class="${classes} ${prefix}chip-removable" role="listitem">${escapeHtml(label)}<button type="button" class="${prefix}chip-dismiss" aria-label="Remove ${escapeHtml(label)}">×</button></span>`;
+  }
+  return `<span class="${classes}">${escapeHtml(raw)}</span>`;
 }
 
 function renderInput(node: any, context: RenderContext): string {
@@ -289,100 +298,7 @@ function renderIcon(node: any, context: RenderContext): string {
   const { classPrefix: prefix } = context;
   const classes = buildClasses(prefix, 'icon', node.props);
   const iconName = node.props.name || 'default';
-
-  // Icon mapping - using Unicode symbols and emoji
-  const iconMap: Record<string, string> = {
-    // Social media
-    'twitter': '𝕏', // Twitter/X logo approximation
-    'github': '⊙', // GitHub-like symbol
-    'linkedin': 'in', // LinkedIn text representation
-    'facebook': 'f',
-    'instagram': '◉',
-    'youtube': '▶',
-
-    // Common UI icons
-    'home': '🏠',
-    'user': '👤',
-    'settings': '⚙️',
-    'search': '🔍',
-    'star': '⭐',
-    'heart': '❤️',
-    'mail': '✉️',
-    'phone': '📞',
-    'calendar': '📅',
-    'clock': '🕐',
-    'location': '📍',
-    'link': '🔗',
-    'download': '⬇️',
-    'upload': '⬆️',
-    'edit': '✏️',
-    'delete': '🗑️',
-    'plus': '➕',
-    'minus': '➖',
-    'check': '✓',
-    'close': '✕',
-    'menu': '☰',
-    'more': '⋯',
-    'info': 'ℹ️',
-    'warning': '⚠️',
-    'error': '❌',
-    'success': '✅',
-
-    // Arrows
-    'arrow-up': '↑',
-    'arrow-down': '↓',
-    'arrow-left': '←',
-    'arrow-right': '→',
-
-    // Business/Finance
-    'chart': '📊',
-    'dollar': '$',
-    'euro': '€',
-    'pound': '£',
-
-    // Tech
-    'code': '</>',
-    'database': '🗄️',
-    'cloud': '☁️',
-    'wifi': '📶',
-
-    // Communication
-    'chat': '💬',
-    'video': '🎥',
-    'microphone': '🎤',
-    'bell': '🔔',
-
-    // Files
-    'file': '📄',
-    'folder': '📁',
-    'image': '🖼️',
-    'document': '📃',
-    'pdf': '📑',
-
-    // Brand placeholders
-    'logo': '◈',
-    'brand': '◆',
-
-    // Activities
-    'rocket': '🚀',
-    'bulb': '💡',
-    'shield': '🛡️',
-    'lock': '🔒',
-    'unlock': '🔓',
-    'key': '🔑',
-    'gift': '🎁',
-    'trophy': '🏆',
-    'flag': '🚩',
-    'bookmark': '🔖',
-    'tag': '🏷️',
-    'cart': '🛒',
-    'credit-card': '💳',
-
-    // Default
-    'default': '●'
-  };
-
-  const iconContent = iconMap[iconName] || iconMap['default'];
+  const iconContent = resolveIcon(iconName);
 
   // For social media icons, wrap in a styled span to make them look more icon-like
   const socialIcons = ['twitter', 'github', 'linkedin', 'facebook', 'instagram', 'youtube'];
@@ -402,11 +318,64 @@ function renderContainer(node: any, context: RenderContext): string {
     return renderSidebarMainLayout(node, context, classes);
   }
 
+  if (node.containerType === 'bottom-nav') {
+    return renderBottomNav(node, context, classes);
+  }
+
   const childrenHTML = (node.children || []).map((child: any) => renderNode(child, context)).join('\n  ');
 
   return `<div class="${classes}">
   ${childrenHTML}
 </div>`;
+}
+
+/**
+ * Mobile tab bar. Prefer a nested `[[ :icon: Label | ... ]]` nav; otherwise
+ * render button / nav-item children directly.
+ */
+function renderBottomNav(node: any, context: RenderContext, classes: string): string {
+  const { classPrefix: prefix } = context;
+  const kids: any[] = node.children || [];
+  let items: any[] = [];
+  if (kids.length === 1 && kids[0].type === 'nav') {
+    items = kids[0].children || [];
+  } else {
+    for (const child of kids) {
+      if (child.type === 'nav') {
+        items.push(...(child.children || []));
+      } else if (child.type === 'nav-item' || child.type === 'button') {
+        items.push(child);
+      } else if (child.type === 'container' && child.containerType === 'button-group') {
+        items.push(...(child.children || []));
+      } else if (child.type === 'container' && child.containerType === 'section') {
+        for (const nested of child.children || []) {
+          if (nested.type === 'nav-item' || nested.type === 'button') items.push(nested);
+          else if (nested.type === 'nav') items.push(...(nested.children || []));
+        }
+      }
+    }
+  }
+
+  const itemsHTML = items
+    .map((item: any) => {
+      if (item.type === 'nav-item') return renderNavItem(item, context);
+      if (item.type === 'button') {
+        const btn = renderButton(item, context);
+        // Promote primary button to active tab affordance in the bar.
+        if ((item.props?.variant === 'primary') && !btn.includes(`${prefix}active`)) {
+          return btn.replace(`class="`, `class="${prefix}active `);
+        }
+        return btn;
+      }
+      return renderNode(item, context);
+    })
+    .join('\n    ');
+
+  return `<nav class="${classes}" aria-label="Bottom navigation">
+  <div class="${prefix}bottom-nav-content">
+    ${itemsHTML}
+  </div>
+</nav>`;
 }
 
 function renderSidebarMainLayout(node: any, context: RenderContext, classes: string): string {

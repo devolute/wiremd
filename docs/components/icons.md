@@ -28,9 +28,9 @@ Use `:name:` inline anywhere — in headings, buttons, nav bars, or plain text.
 
 | Name | Renders as |
 |------|------------|
-| `:home:` | 🏠 |
-| `:user:` | 👤 |
-| `:settings:` | ⚙️ |
+| `:home:` / `:house:` | 🏠 |
+| `:user:` / `:person:` | 👤 |
+| `:settings:` / `:gear:` | ⚙️ |
 | `:search:` | 🔍 |
 | `:star:` | ⭐ |
 | `:heart:` | ❤️ |
@@ -43,11 +43,11 @@ Use `:name:` inline anywhere — in headings, buttons, nav bars, or plain text.
 | `:download:` | ⬇️ |
 | `:upload:` | ⬆️ |
 | `:edit:` | ✏️ |
-| `:delete:` | 🗑️ |
+| `:delete:` / `:trash:` | 🗑️ |
 | `:plus:` | ➕ |
 | `:minus:` | ➖ |
 | `:check:` | ✓ |
-| `:close:` | ✕ |
+| `:close:` / `:x:` | ✕ |
 | `:menu:` | ☰ |
 | `:more:` | ⋯ |
 | `:info:` | ℹ️ |
@@ -103,6 +103,24 @@ Use `:name:` inline anywhere — in headings, buttons, nav bars, or plain text.
 | `:database:` | 🗄️ |
 | `:cloud:` | ☁️ |
 | `:wifi:` | 📶 |
+
+### Domain / climate
+
+| Name | Renders as |
+|------|------------|
+| `:tree:` | 🌳 |
+| `:plant:` | 🌱 |
+| `:sun:` | ☀️ |
+| `:thermometer:` / `:heat:` | 🌡️ |
+| `:drop:` / `:water:` | 💧 |
+| `:rain:` | 🌧️ |
+| `:wind:` | 💨 |
+| `:map:` | 🗺️ |
+| `:building:` | 🏢 |
+| `:shop:` | 🏪 |
+| `:tools:` | 🛠️ |
+| `:megaphone:` | 📢 |
+| `:handshake:` | 🤝 |
 
 ### Activities
 
