@@ -128,6 +128,74 @@ export function getStyleCSS(style: string, prefix: string): string {
 .${prefix}chip-dismiss:hover { opacity: 1; background: rgba(0,0,0,0.08); }
 `;
 
+  const calloutStructural = `
+.${prefix}annotated { position: relative; padding: 2.25rem 8.75rem; min-height: 4rem; }
+.${prefix}callout {
+  position: absolute;
+  z-index: 6;
+  width: 7.5rem;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  pointer-events: none;
+  background: transparent;
+}
+.${prefix}callout p, .${prefix}callout .${prefix}paragraph { margin: 0; }
+.${prefix}callout-leaders {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 5;
+}
+.${prefix}callout-leaders path {
+  fill: none;
+  stroke: #444;
+  stroke-width: 1.35;
+  stroke-dasharray: 5 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.${prefix}callout-leaders circle { fill: #444; stroke: none; }
+.${prefix}sketch .${prefix}callout { transform: rotate(-1.2deg); }
+.${prefix}sketch .${prefix}callout-right { transform: rotate(1.2deg); }
+`;
+
+  const annotationStructural = `
+.${prefix}grid.${prefix}start { align-items: start; }
+.${prefix}document {
+  background: #fff;
+  min-height: 22rem;
+  padding: 1.25rem 1.5rem 2rem;
+  box-shadow: 2px 3px 0 rgba(0,0,0,0.08);
+}
+.${prefix}retrieved {
+  background: #fff;
+  border: 1.5px solid #666;
+  padding: 0.45rem 0.7rem;
+  margin: 0.5rem 0;
+}
+.${prefix}evidence {
+  background: #c8e6c9;
+  border: 1.5px solid #2e7d32;
+  padding: 0.45rem 0.7rem;
+  margin: 0.5rem 0;
+}
+.${prefix}tooltip {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid #333;
+  background: #fffbe6;
+  transform: rotate(-1deg);
+}
+`;
+
   const demoStructural = `
 .${prefix}demo { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #d0d0d0; border-radius: 6px; overflow: hidden; margin: 1rem 0; }
 .${prefix}demo-preview { padding: 1.5rem; border-right: 1px solid #d0d0d0; }
@@ -150,7 +218,18 @@ export function getStyleCSS(style: string, prefix: string): string {
     case 'brutal':    themeCSS = getBrutalStyle(prefix); break;
     default:          themeCSS = getSketchStyle(prefix);
   }
-  return linkButtonReset + tabsStructural + rowStructural + bottomNavAndChipStructural + demoStructural + themeCSS;
+  const annotationOverrides = `
+.${prefix}container-card.${prefix}retrieved, .${prefix}retrieved {
+  background: #fff;
+  border: 1.5px solid #888;
+}
+.${prefix}container-card.${prefix}evidence, .${prefix}evidence {
+  background: #c8e6c9;
+  border: 2px solid #2e7d32;
+}
+`;
+
+  return linkButtonReset + tabsStructural + rowStructural + bottomNavAndChipStructural + calloutStructural + annotationStructural + demoStructural + themeCSS + annotationOverrides;
 }
 
 /**
@@ -526,6 +605,12 @@ body.${prefix}root {
   transform: rotate(0.5deg);
 }
 .${prefix}grid-item-card:nth-child(even) { transform: rotate(-0.5deg); }
+.${prefix}grid-item-card.${prefix}primary {
+  background: #e8e8e8;
+  border-width: 3px;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+  transform: rotate(-0.8deg);
+}
 
 /* Lists */
 .${prefix}list {

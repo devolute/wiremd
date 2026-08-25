@@ -8,7 +8,7 @@
  */
 
 import type { DocumentNode, RenderOptions } from '../types.js';
-import { renderNode } from './html-renderer.js';
+import { renderNode, extractCallouts, getCalloutLeaderScript } from './html-renderer.js';
 import { getStyleCSS } from './styles.js';
 import * as ReactRenderer from './react-renderer.js';
 import * as TailwindRenderer from './tailwind-renderer.js';
@@ -47,11 +47,22 @@ export function renderToHTML(
     pretty,
   };
 
-  // Render all children
-  const childrenHTML = ast.children.map((child) => renderNode(child, context)).join('\n');
+  const { body, callouts } = extractCallouts(ast.children || []);
+  const bodyHTML = body.map((child) => renderNode(child, context)).join('\n');
+  const calloutHTML = callouts.map((child) => renderNode(child, context)).join('\n');
+  const hasCallouts = callouts.length > 0;
+  const childrenHTML = hasCallouts
+    ? `<div class="${classPrefix}annotated">
+  ${bodyHTML}
+  ${calloutHTML}
+  <svg class="${classPrefix}callout-leaders" aria-hidden="true"></svg>
+</div>
+${getCalloutLeaderScript(classPrefix)}`
+    : bodyHTML;
 
   // Build complete HTML document
   const css = inlineStyles ? getStyleCSS(style, classPrefix) : '';
+  const bodyClass = `${classPrefix}root ${classPrefix}${style}${hasCallouts ? ` ${classPrefix}has-callouts` : ''}`;
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -61,7 +72,7 @@ export function renderToHTML(
   <title>wiremd Mockup</title>
   ${css ? `<style>\n${css}\n  </style>` : ''}
 </head>
-<body class="${classPrefix}root ${classPrefix}${style}">
+<body class="${bodyClass}">
   ${childrenHTML}
 </body>
 </html>`;

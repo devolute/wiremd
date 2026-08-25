@@ -327,6 +327,23 @@ Spans two columns
       expect(html).toMatch(/max-width:\s*768px[\s\S]*?col-span-2[\s\S]*?grid-column:\s*span 1/);
     });
 
+    it('should render selected grid card from heading .primary', () => {
+      const input = `
+::: grid-3 card
+
+### GPT-4o Mini {.primary}
+Chunk: 500 · Overlap: 20 · Top-K: 5
+
+### GPT-4o
+Chunk: 800 · Overlap: 40 · Top-K: 8
+
+:::
+      `.trim();
+
+      const html = renderToHTML(parse(input), { style: 'sketch' });
+      expect(html).toMatch(/class="[^"]*wmd-primary[^"]*wmd-grid-item-card/);
+    });
+
     it('should render col-span combined with card modifier', () => {
       const input = `
 ::: grid-3 card

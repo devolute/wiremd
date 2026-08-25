@@ -24,6 +24,7 @@
 [[Button Links](./button-links.md)]
 [[Reuse Components](./includes.md)]
 [[Attributes & Classes](./attributes.md)]
+[[Callouts](./callouts.md)]
 [[Demo Blocks](./demo.md)]
 [[Visual Styles](./styles.md)]
 

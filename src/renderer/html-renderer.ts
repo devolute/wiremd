@@ -22,6 +22,10 @@ export interface RenderContext {
  */
 export function renderNode(node: WiremdNode, context: RenderContext): string {
   if (node == null) return '';
+  return applyElementId(renderNodeInner(node, context), (node as any).props);
+}
+
+function renderNodeInner(node: WiremdNode, context: RenderContext): string {
   switch (node.type) {
     case 'button':
       return renderButton(node, context);
@@ -322,6 +326,10 @@ function renderContainer(node: any, context: RenderContext): string {
     return renderBottomNav(node, context, classes);
   }
 
+  if (node.containerType === 'callout') {
+    return renderCallout(node, context);
+  }
+
   const childrenHTML = (node.children || []).map((child: any) => renderNode(child, context)).join('\n  ');
 
   return `<div class="${classes}">
@@ -376,6 +384,117 @@ function renderBottomNav(node: any, context: RenderContext, classes: string): st
     ${itemsHTML}
   </div>
 </nav>`;
+}
+
+const CALLOUT_SIDES = new Set(['left', 'right', 'top', 'bottom']);
+
+function renderCallout(node: any, context: RenderContext): string {
+  const { classPrefix: prefix } = context;
+  const target = String(node.props?.for || node.props?.target || '');
+  const sideRaw = String(node.props?.side || 'left').toLowerCase();
+  const side = CALLOUT_SIDES.has(sideRaw) ? sideRaw : 'left';
+  const classes = `${buildClasses(prefix, 'callout', node.props)} ${prefix}callout-${side}`;
+  const childrenHTML = (node.children || []).map((child: any) => renderNode(child, context)).join('');
+  const forAttr = target ? ` data-callout-for="${escapeHtml(target)}"` : '';
+  return `<aside class="${classes}"${forAttr} data-callout-side="${side}">${childrenHTML}</aside>`;
+}
+
+function isCalloutNode(node: any): boolean {
+  return Boolean(node && node.type === 'container' && node.containerType === 'callout');
+}
+
+function pullCallouts(nodes: any[], callouts: any[]): any[] {
+  if (!Array.isArray(nodes)) return [];
+  const result: any[] = [];
+  for (const node of nodes) {
+    if (isCalloutNode(node)) {
+      callouts.push(node);
+      continue;
+    }
+    if (node && Array.isArray(node.children)) {
+      result.push({ ...node, children: pullCallouts(node.children, callouts) });
+    } else {
+      result.push(node);
+    }
+  }
+  return result;
+}
+
+/** Pull `::: callout` nodes out of the tree so they overlay as leader-line labels. */
+export function extractCallouts(nodes: WiremdNode[]): { body: WiremdNode[]; callouts: WiremdNode[] } {
+  const callouts: WiremdNode[] = [];
+  const body = pullCallouts(nodes as any[], callouts);
+  return { body, callouts };
+}
+
+/** Draw SVG leader lines from callout labels to `{#id}` targets after layout. */
+export function getCalloutLeaderScript(prefix: string): string {
+  return `<script>(function(){
+if(window.__wmdCalloutsInit)return;window.__wmdCalloutsInit=true;
+function layout(){
+  document.querySelectorAll('.${prefix}annotated').forEach(function(frame){
+    var svg=frame.querySelector('.${prefix}callout-leaders');
+    if(!svg)return;
+    var fr=frame.getBoundingClientRect();
+    var w=frame.offsetWidth,h=frame.offsetHeight;
+    svg.setAttribute('viewBox','0 0 '+w+' '+h);
+    svg.setAttribute('width',String(w));
+    svg.setAttribute('height',String(h));
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    var used={left:[],right:[],top:[],bottom:[]};
+    frame.querySelectorAll('.${prefix}callout').forEach(function(el){
+      var id=el.getAttribute('data-callout-for');
+      var side=el.getAttribute('data-callout-side')||'left';
+      var target=id?document.getElementById(id):null;
+      if(!target){el.style.visibility='hidden';return;}
+      el.style.visibility='visible';
+      var t=target.getBoundingClientRect();
+      var gap=26;
+      var y=t.top-fr.top+t.height/2-el.offsetHeight/2;
+      var stack=used[side]||(used[side]=[]);
+      stack.forEach(function(prev){if(Math.abs(y-prev)<gap)y=prev+gap;});
+      stack.push(y);
+      el.style.position='absolute';
+      if(side==='left'){el.style.top=y+'px';el.style.left='0.4rem';el.style.right='auto';el.style.bottom='auto';}
+      else if(side==='right'){el.style.top=y+'px';el.style.right='0.4rem';el.style.left='auto';el.style.bottom='auto';}
+      else if(side==='top'){el.style.top='0.35rem';el.style.left=(t.left-fr.left+t.width/2-el.offsetWidth/2)+'px';el.style.right='auto';el.style.bottom='auto';}
+      else {el.style.bottom='0.35rem';el.style.top='auto';el.style.left=(t.left-fr.left+t.width/2-el.offsetWidth/2)+'px';el.style.right='auto';}
+      var cr=el.getBoundingClientRect();
+      var x1,y1,x2,y2;
+      if(side==='left'){x1=cr.right-fr.left;y1=cr.top-fr.top+cr.height/2;x2=t.left-fr.left;y2=t.top-fr.top+t.height/2;}
+      else if(side==='right'){x1=cr.left-fr.left;y1=cr.top-fr.top+cr.height/2;x2=t.right-fr.left;y2=t.top-fr.top+t.height/2;}
+      else if(side==='top'){x1=cr.left-fr.left+cr.width/2;y1=cr.bottom-fr.top;x2=t.left-fr.left+t.width/2;y2=t.top-fr.top;}
+      else {x1=cr.left-fr.left+cr.width/2;y1=cr.top-fr.top;x2=t.left-fr.left+t.width/2;y2=t.bottom-fr.top;}
+      var mx=(x1+x2)/2;
+      var d='M '+x1.toFixed(1)+' '+y1.toFixed(1)+' L '+mx.toFixed(1)+' '+y1.toFixed(1)+' L '+mx.toFixed(1)+' '+y2.toFixed(1)+' L '+x2.toFixed(1)+' '+y2.toFixed(1);
+      var ns='http://www.w3.org/2000/svg';
+      var path=document.createElementNS(ns,'path');
+      path.setAttribute('d',d);
+      svg.appendChild(path);
+      var c=document.createElementNS(ns,'circle');
+      c.setAttribute('cx',x2.toFixed(1));
+      c.setAttribute('cy',y2.toFixed(1));
+      c.setAttribute('r','2.4');
+      svg.appendChild(c);
+    });
+  });
+}
+function run(){layout();}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(run);
+window.addEventListener('load',run);
+window.addEventListener('resize',run);
+if(document.readyState==='complete')run();
+else document.addEventListener('DOMContentLoaded',run);
+})();</script>`;
+}
+
+function applyElementId(html: string, props: any): string {
+  const id = props?.id;
+  if (!id || typeof id !== 'string' || !html) return html;
+  const match = html.match(/^(\s*<[a-zA-Z][a-zA-Z0-9-]*)([^>]*)>/);
+  if (!match) return html;
+  if (/\sid\s*=/.test(match[2])) return html;
+  return `${match[1]} id="${escapeHtml(id)}"${match[2]}>${html.slice(match[0].length)}`;
 }
 
 function renderSidebarMainLayout(node: any, context: RenderContext, classes: string): string {

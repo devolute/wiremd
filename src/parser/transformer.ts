@@ -182,10 +182,12 @@ function collectGridItemsFromContainer(
       const headingContent = extractTextContent(child);
       const colSpanMatch = headingContent.match(/\{[^}]*\.col-span-(\d+)[^}]*\}/);
       const alignMatch = headingContent.match(/\{[^}]*\.(left|center|right)[^}]*\}/);
+      const primaryMatch = headingContent.match(/\{[^}]*\.primary[^}]*\}/);
       const itemProps: any = { classes: [] };
       if (isCard) itemProps.classes.push('card');
       if (colSpanMatch) itemProps.classes.push(`col-span-${colSpanMatch[1]}`);
       if (alignMatch) itemProps.classes.push(`align-${alignMatch[1]}`);
+      if (primaryMatch) itemProps.classes.push('primary');
       gridItems.push({
         type: 'grid-item',
         props: itemProps,
@@ -1900,6 +1902,11 @@ function parseAttributes(attrString: string): any {
     // Class: .classname
     if (part.startsWith('.')) {
       props.classes.push(part.slice(1));
+    }
+    // Anchor: #id
+    else if (part.startsWith('#')) {
+      const id = part.slice(1);
+      if (id) props.id = id;
     }
     // State: :state
     else if (part.startsWith(':')) {

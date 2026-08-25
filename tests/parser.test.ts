@@ -1135,6 +1135,25 @@ $29/mo
       expect(grid.children[1].props.classes).toContain('col-span-2');
     });
 
+    it('should hoist primary class from heading to grid-item', () => {
+      const input = `
+::: grid-3 card
+
+### GPT-4o Mini {.primary}
+Chunk: 500
+
+### GPT-4o
+Chunk: 800
+
+:::
+      `.trim();
+
+      const result = parse(input);
+      const grid = result.children[0] as any;
+      expect(grid.children[0].props.classes).toContain('primary');
+      expect(grid.children[1].props.classes).not.toContain('primary');
+    });
+
     it('should leave grid-item without col-span when not specified', () => {
       const input = `
 ::: grid-3

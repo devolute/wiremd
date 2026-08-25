@@ -18,6 +18,21 @@ Add `.classname` to attach a CSS class:
 
 > **Note:** `{.primary}` and `{.danger}` on buttons add raw CSS classes (`wmd-primary`, `wmd-danger`), not variant classes (`wmd-button-primary`, `wmd-button-danger`). These classes have no built-in CSS definitions and produce unstyled buttons. Use `[Button]*` or `{variant:primary}` / `{variant:danger}` instead. Custom classes like `.large` are passed through but also have no built-in CSS definition.
 
+## IDs
+
+`{#id}` sets the HTML `id` so a [callout](./callouts.md) can point at the element:
+
+::: demo
+[Q1 How does org…___________v]{#question}
+:::
+
+```
+[Control___________v]{#question}
+::: callout {for:question side:left}
+question select
+:::
+```
+
 ## Key-value Attributes
 
 Add `key:value` pairs for HTML attributes:
@@ -89,6 +104,7 @@ $29/mo — spans two columns
 | `{type:email}` | Input type |
 | `{rows:N}` | Textarea row count |
 | `{placeholder:"..."}` | Input placeholder text (**TODO:** quoted values with spaces may not parse correctly — prefer `{placeholder:hint}` without quotes for single words) |
+| `{#id}` | HTML id — target for `::: callout {for:id}` |
 
 ## Syntax
 
